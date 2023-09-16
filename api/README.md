@@ -62,3 +62,63 @@ The API will respond with a JSON containing the AI's output voice and text, and 
     "user_text": "Hi, my name is Bella. Nice to meet you."
 }
 ```
+
+## Get All Articles
+
+## Endpoint 
+`GET https://hacktheshell.appspot.com/articles`
+
+## Request 
+Headers: `Content-Type: application/json`
+
+This is a GET request, so no inputs are required.
+
+## Response 
+
+The API responds with a data object containing a list of articles. Each article is an object with fields `headline`, `summary`, `score` and `esg_points`.
+
+Each `esg_points` is an array that contains brief points related to 'E' (Environmental), 'S' (Social), and 'G' (Governance) aspects of the article.
+
+### Body
+
+```json
+{
+    "news": [
+        {
+            "headline": "HEADLINE_TEXT",
+            "summary": "SUMMARY_TEXT",
+            "score": SCORE,
+            "esg_points": [
+                "E ESG_POINT",
+                "S ESG_POINT",
+                "G ESG_POINT"
+            ]
+        },
+        ...
+    ]
+}
+```
+**Response Fields:**
+
+* **headline** (string) - The headline of the article.
+* **summary** (string) - A text summary of the article.
+* **score** (number) - A numerical score assigned to the article.
+* **esg_points** (array) - A list of points related to environmental, social, and governance aspects of the company or event discussed in the article.
+
+### Example Response
+```json
+{
+    "news": [
+        {
+            "headline": "Apple to invest $1 billion in North Carolina campus, create at least 3,000 jobs",
+            "summary": "Wow",
+            "score": 7.8,
+            "esg_points": [
+                "E Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.",
+                "S The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.",
+                "G Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state."
+            ]
+        }
+    ]
+}
+```
