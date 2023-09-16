@@ -21,14 +21,13 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 storage_client = storage.Client()
 openai.api_key = os.getenv('OPEN_API_KEY')
 
-# write a function that takes a message and use eleven labs to return an audio file
-def generate_audio(msg):
-    pass
-
 def save_audio_to_gcs(bucket_name, destination_blob_name, stream):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_file(stream)
+    # return the url
+    print("The Public URL: " + blob.public_url)
+    return blob.public_url
 
 def generate_audio():
     CHUNK_SIZE = 1024
@@ -60,13 +59,50 @@ def generate_audio():
 
     audio_content.seek(0)
     save_audio_to_gcs('shellhacksbucket', 'output.mp3', audio_content)
+
+def query_whiper(audio_file):
+    url = "https://api.openai.com/v1/audio/transcriptions"
+
+    payload={'model': 'whisper-1'}
+    files=[
+        ('file',
+            (audio_file.filename, audio_file, 'audio/mpeg')
+        )
+    ]
+    headers = {
+    'Authorization': 'Bearer ' + os.getenv('OPEN_API_KEY')
+    }
+    response = rq.request("POST", url, headers=headers, data=payload, files=files)
+    print(response.json())
+    return response.json()
+
+def gpt_educates(conversation_history, new_prompt):
+    system_setup = "You are an AI system designed to help the user with financial literacy content with a focus on sustainability. If the user asks things outside of the finance scope, explain to the user politely your purpose."
+    messages = [{"role": "system", "content": system_setup}]
     
-generate_audio()
+    for i in range(len(conversation_history)):
+        if i%2 == 0:  
+            message_type = "user"
+        else:  
+            message_type = "assistant"
+            
+        messages.append({"role": message_type, "content": conversation_history[i]})
+    
+    messages.append({"role": "user", "content": new_prompt})
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+    print(response)
+    return response.choices[0].message['content']
 
 @app.route('/ok', methods=['POST','GET'])
 @cross_origin()
 def hello_world_api():
-    # generate_audio()
+    conversation_history = ["Hello! Who are you?", "I'm an AI assistant created to help you with financial literacy content."]
+    new_prompt = "What should I be looking at while investing in ESG stocks?"
+    print(gpt_educates(conversation_history, new_prompt))
     return jsonify({"data": "Hello World"})
 
 @app.route('/articles', methods=['GET'])
@@ -119,19 +155,14 @@ def process_audio_whisper():
 
     # Get the audio file
     audio_file = request.files['audio']
+    conversations = request.form['conversations']
 
-    url = "https://api.openai.com/v1/audio/transcriptions"
+    whisper_response = query_whiper(audio_file)
+    user_input = whisper_response.get('text')
+    
+    # Send it to GPT-4 conversational model
 
-    payload={'model': 'whisper-1'}
-    files=[
-    ('file',(audio_file.filename, audio_file, 'audio/mpeg'))
-    ]
-    headers = {
-    'Authorization': 'Bearer '+os.getenv('OPEN_API_KEY')
-    }
-    response = rq.request("POST", url, headers=headers, data=payload, files=files)
-
-    print(response.json())
+   
     return jsonify(response.json())
 
 if __name__ == '__main__':
