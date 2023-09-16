@@ -16,4 +16,7 @@ df_prices_melted = df_prices.melt(id_vars='Date', var_name='Symbol', value_name=
 
 
 df = df.merge(df_prices_melted, on='Symbol', how='left')
+
+df = df.dropna(subset=['Price']) # Gotta remove the garb first ...
+
 df.to_csv("complete_data.csv")
