@@ -21,7 +21,8 @@ def hello_world_api():
 @app.route('/news', methods=['GET'])
 @cross_origin()
 def get_news_feed():
-    data = {'news':[
+    data = {
+        'news':[
         {
             'headline': 'Apple to invest $1 billion in North Carolina campus, create at least 3,000 jobs',
             'source': 'CNBC',
@@ -36,6 +37,27 @@ def get_news_feed():
     ]
     }
     return jsonify(data)
+
+# Route to return the stonks
+@app.route('/stocks', methods=['GET'])
+@cross_origin()
+def get_stocks():
+    # Stocks returned will be from the SP500.
+    stock_data = {
+        'stocks':[
+        {
+            'name': 'Apple',
+            'ticker': 'AAPL',
+            'current_price': 127.45,
+            'esg_score': 0.8,
+            'esg_points': [
+                'Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
+                'The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
+                'Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state.'
+            ]
+        },
+    ]}
+    return jsonify(stock_data)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
