@@ -19,16 +19,16 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 def hello_world_api():
     return jsonify({"data": "Hello World"})
 
-@app.route('/news', methods=['GET'])
+@app.route('/articles', methods=['GET'])
 @cross_origin()
 def get_news_feed():
     data = {
-        'news':[
+        'news':[ # Article
         {
             'headline': 'Apple to invest $1 billion in North Carolina campus, create at least 3,000 jobs',
             'source': 'CNBC',
             'url': 'https://www.cnbc.com/technology/',
-            'esg_score': 0.8,
+            'score': 7.8,
             'esg_points': [
                 'Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
                 'The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
@@ -47,10 +47,10 @@ def get_stocks():
     stock_data = {
         'stocks':[
         {
-            'name': 'Apple',
+            'fullname': 'Apple',
             'ticker': 'AAPL',
-            'current_price': 127.45,
-            'esg_score': 0.8,
+            'price': 127.45,
+            'score': 7.8,
             'esg_points': [
                 'Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
                 'The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
