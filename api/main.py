@@ -5,7 +5,7 @@ import string
 import random
 import json
 import requests as rq
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
@@ -58,6 +58,15 @@ def get_stocks():
         },
     ]}
     return jsonify(stock_data)
+
+# Future, Return audio link to user, ai-voice, ai text output.
+@app.route('/audio', methods=['POST'])
+@cross_origin()
+def get_audio():
+    audio_file = request.files['audio']
+    print(audio_file)
+    print(dir(audio_file))
+    return jsonify({"filename": audio_file.filename})
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
