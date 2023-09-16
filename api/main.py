@@ -157,9 +157,9 @@ def get_stocks():
             'price': 127.45,
             'score': 7.8,
             'esg_points': [
-                'Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
-                'The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
-                'Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state.'
+                'E. Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
+                'S. The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
+                'G. Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state.'
             ]
         },
     ]}

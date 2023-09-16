@@ -122,3 +122,67 @@ Each `esg_points` is an array that contains brief points related to 'E' (Environ
     ]
 }
 ```
+
+## Get All Stocks
+
+## Endpoint 
+`GET https://hacktheshell.appspot.com/stocks`
+
+## Request 
+Headers: `Content-Type: application/json`
+
+This is a GET request, so no inputs are required.
+
+## Response 
+
+The API responds with a data object containing a list of stocks. Each stock is an object with fields `fullname`, `ticker`, `price`, `score` and `esg_points`.
+
+Each `esg_points` is an array that contains brief points related to 'E' (Environmental), 'S' (Social), and 'G' (Governance) aspects of the stock company.
+
+### Body
+
+```json
+{
+    "stocks": [
+        {
+            "fullname": "COMPANY_FULLNAME",
+            "ticker": "STOCK_TICKER",
+            "price": STOCK_PRICE,
+            "score": SCORE,
+            "esg_points": [
+                "E ESG_POINT",
+                "S ESG_POINT",
+                "G ESG_POINT"
+            ]
+        },
+        ...
+    ]
+}
+```
+
+**Response Fields:**
+
+* **fullname** (string) - The full name of the company.
+* **ticker** (string) - The stock ticker symbol.
+* **price** (number) - The current stock price.
+* **score** (number) - A numerical ESG score assigned to the company stock.
+* **esg_points** (array) - A list of points related to environmental, social, and governance aspects of the company.
+
+### Example Response
+```json
+{
+    "stocks": [
+        {
+            "fullname": "Apple",
+            "ticker": "AAPL",
+            "price": 127.45,
+            "score": 7.8,
+            "esg_points": [
+                "E Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.",
+                "S The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.",
+                "G Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state."
+            ]
+        }
+    ]
+}
+```
