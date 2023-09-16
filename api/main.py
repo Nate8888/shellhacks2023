@@ -21,15 +21,19 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 storage_client = storage.Client()
 openai.api_key = os.getenv('OPEN_API_KEY')
 
+def random_string(length=8):
+    letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
+    return ''.join(random.choice(letters) for i in range(length))
+
+
 def save_audio_to_gcs(bucket_name, destination_blob_name, stream):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_file(stream)
-    # return the url
     print("The Public URL: " + blob.public_url)
     return blob.public_url
 
-def generate_audio():
+def generate_audio(msg):
     CHUNK_SIZE = 1024
     url = "https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB"
 
@@ -40,7 +44,7 @@ def generate_audio():
     }
 
     data = {
-      "text": "Hi! My name is Bella, nice to meet you!",
+      "text": msg,
       "model_id": "eleven_monolingual_v1",
       "voice_settings": {
         "stability": 0.5,
@@ -58,7 +62,7 @@ def generate_audio():
             audio_content.write(chunk)
 
     audio_content.seek(0)
-    save_audio_to_gcs('shellhacksbucket', 'output.mp3', audio_content)
+    return save_audio_to_gcs('shellhacksbucket', random_string()+'.mp3', audio_content)
 
 def query_whiper(audio_file):
     url = "https://api.openai.com/v1/audio/transcriptions"
@@ -79,7 +83,7 @@ def query_whiper(audio_file):
 def gpt_educates(conversation_history, new_prompt):
     system_setup = "You are an AI system designed to help the user with financial literacy content with a focus on sustainability. If the user asks things outside of the finance scope, explain to the user politely your purpose."
     messages = [{"role": "system", "content": system_setup}]
-    
+
     for i in range(len(conversation_history)):
         if i%2 == 0:  
             message_type = "user"
@@ -155,15 +159,26 @@ def process_audio_whisper():
 
     # Get the audio file
     audio_file = request.files['audio']
-    conversations = request.form['conversations']
+    conversations = request.form.get('conversations', [])
 
     whisper_response = query_whiper(audio_file)
     user_input = whisper_response.get('text')
     
     # Send it to GPT-4 conversational model
+    response = gpt_educates(conversations, user_input)
+    audio_file.seek(0)
+    
+    # upload the 'audio_file' to gcs
+    user_input_link = save_audio_to_gcs('shellhacksbucket', 'testing.mp3', audio_file)
 
-   
-    return jsonify(response.json())
+    # now with reponse build a new audio with elevenlabs
+    ai_output_link = generate_audio(response)
+    completed_return = {
+        'user_input': user_input_link,
+        'ai_output': ai_output_link,
+        'ai_text': response
+    }
+    return jsonify(completed_return)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
