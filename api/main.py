@@ -8,15 +8,18 @@ import requests as rq
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 from google.cloud import storage
-
+from io import BytesIO
+import io
 import dotenv
 dotenv.load_dotenv()
+import openai
 
 app = Flask(__name__)
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 storage_client = storage.Client()
+openai.api_key = os.getenv('OPEN_API_KEY')
 
 # write a function that takes a message and use eleven labs to return an audio file
 def generate_audio(msg):
@@ -49,7 +52,6 @@ def generate_audio():
     response = rq.post(url, json=data, headers=headers)
 
     # Using 'BytesIO' object to hold the audio content.
-    from io import BytesIO
     audio_content = BytesIO()
     
     for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
@@ -111,11 +113,26 @@ def get_stocks():
 # Future, Return audio link to user, ai-voice, ai text output.
 @app.route('/audio', methods=['POST'])
 @cross_origin()
-def get_audio():
+def process_audio_whisper():
+    if 'audio' not in request.files:
+        return 'No audio file in request', 400
+
+    # Get the audio file
     audio_file = request.files['audio']
-    print(audio_file)
-    print(dir(audio_file))
-    return jsonify({"filename": audio_file.filename})
+
+    url = "https://api.openai.com/v1/audio/transcriptions"
+
+    payload={'model': 'whisper-1'}
+    files=[
+    ('file',(audio_file.filename, audio_file, 'audio/mpeg'))
+    ]
+    headers = {
+    'Authorization': 'Bearer '+os.getenv('OPEN_API_KEY')
+    }
+    response = rq.request("POST", url, headers=headers, data=payload, files=files)
+
+    print(response.json())
+    return jsonify(response.json())
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
