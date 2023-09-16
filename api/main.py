@@ -25,6 +25,17 @@ def random_string(length=8):
     letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
     return ''.join(random.choice(letters) for i in range(length))
 
+def question_esg_news(news_summary):
+    system_prompt = 'You are a system that is evaluating the ESG impact of articles that I pass you. You are to give a score from 0-10 and then explain briefly what the "E", "S", and "G" aspect focus on. Reply in JSON format like as following:"{score:8.5, "esg":["E:", "S:","G:"]}"'
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.append({"role": "user", "content": news_summary})
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages
+    )
+    print(response)
+    return response.choices[0].message['content']
 
 def save_audio_to_gcs(bucket_name, destination_blob_name, stream):
     bucket = storage_client.bucket(bucket_name)
@@ -104,9 +115,14 @@ def gpt_educates(conversation_history, new_prompt):
 @app.route('/ok', methods=['POST','GET'])
 @cross_origin()
 def hello_world_api():
-    conversation_history = ["Hello! Who are you?", "I'm an AI assistant created to help you with financial literacy content."]
-    new_prompt = "What should I be looking at while investing in ESG stocks?"
-    print(gpt_educates(conversation_history, new_prompt))
+    esg_analysis = question_esg_news("Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.")
+    # the ESG analysis is a json string like this: {\"score\":8.5, \"esg\":[\"E: Lower impact as there is no explicit reference towards environmental sustainability or mitigations from Apple's investment or development plans.\", \"S: Positive impact on social aspect as the investment will stimulate local economy and possibly create job opportunities.\", \"G: Neutral impact. While it underlines Apple's growth and sectorial expansion, the governance aspect isn't directly discussed or implied in this context.\"]}
+    esg_analysis = esg_analysis.replace("\\", "")
+    json_to_dict = json.loads(esg_analysis)
+    print(json_to_dict)
+    # conversation_history = ["Hello! Who are you?", "I'm an AI assistant created to help you with financial literacy content."]
+    # new_prompt = "What should I be looking at while investing in ESG stocks?"
+    # print(gpt_educates(conversation_history, new_prompt))
     return jsonify({"data": "Hello World"})
 
 @app.route('/articles', methods=['GET'])
@@ -178,6 +194,7 @@ def process_audio_whisper():
         'ai_output': ai_output_link,
         'ai_text': response
     }
+    print(completed_return)
     return jsonify(completed_return)
 
 if __name__ == '__main__':
