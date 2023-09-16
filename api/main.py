@@ -132,8 +132,7 @@ def get_news_feed():
         'news':[ # Article
         {
             'headline': 'Apple to invest $1 billion in North Carolina campus, create at least 3,000 jobs',
-            'source': 'CNBC',
-            'url': 'https://www.cnbc.com/technology/',
+            'summary':"Wow",
             'score': 7.8,
             'esg_points': [
                 'Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
@@ -166,8 +165,7 @@ def get_stocks():
     ]}
     return jsonify(stock_data)
 
-# Future, Return audio link to user, ai-voice, ai text output.
-@app.route('/audio', methods=['POST'])
+@app.route('/talk', methods=['POST'])
 @cross_origin()
 def process_audio_whisper():
     if 'audio' not in request.files:
@@ -185,12 +183,13 @@ def process_audio_whisper():
     audio_file.seek(0)
     
     # upload the 'audio_file' to gcs
-    user_input_link = save_audio_to_gcs('shellhacksbucket', 'testing.mp3', audio_file)
+    user_input_link = save_audio_to_gcs('shellhacksbucket', random_string()+'.mp3', audio_file)
 
     # now with reponse build a new audio with elevenlabs
     ai_output_link = generate_audio(response)
     completed_return = {
         'user_input': user_input_link,
+        'user_text': user_input,
         'ai_output': ai_output_link,
         'ai_text': response
     }
