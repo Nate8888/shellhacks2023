@@ -134,12 +134,16 @@ class _VoicePageState extends State<VoicePage> {
                                     child: Container(
                                       width: double.infinity,
                                       padding: const EdgeInsets.fromLTRB(
-                                          82.0, 14.0, 42.0, 14.0),
+                                          82.0, 14.0, 32.0, 14.0),
                                       child: Align(
                                         alignment: Alignment.centerRight,
                                         child: Text(
                                           chatMessage.userText,
-                                          style: TextStyle(fontSize: 18),
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Color.fromARGB(
+                                                255, 244, 121, 49),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -151,10 +155,15 @@ class _VoicePageState extends State<VoicePage> {
                                     child: Container(
                                       width: double.infinity,
                                       padding: const EdgeInsets.fromLTRB(
-                                          42.0, 14.0, 82.0, 14.0),
+                                          32.0, 14.0, 82.0, 14.0),
                                       child: Text(
                                         chatMessage.chatbotText,
-                                        style: TextStyle(fontSize: 18),
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Color.fromARGB(255, 244, 121, 49),
+                                        ),
                                       ),
                                     ),
                                     onTap: () {
