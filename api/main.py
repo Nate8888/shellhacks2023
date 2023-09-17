@@ -88,10 +88,15 @@ def generate_audio(msg):
     CHUNK_SIZE = 1024
     url = "https://api.elevenlabs.io/v1/text-to-speech/ThT5KcBeYPX3keUQqHPh"
 
+    # random 50% between KEY and KEY_TWO
+    selected_key = os.getenv('ELEVEN_LABS_KEY')
+    if random.randint(0, 1) == 1:
+        selected_key = os.getenv('ELEVEN_LABS_KEY_TWO')
+
     headers = {
       "Accept": "audio/mpeg",
       "Content-Type": "application/json",
-      "xi-api-key": os.getenv('ELEVEN_LABS_KEY_TWO')
+      "xi-api-key": selected_key
     }
 
     data = {
@@ -132,7 +137,7 @@ def query_whiper(audio_file):
     return response.json()
 
 def gpt_educates(conversation_history, new_prompt):
-    system_setup = "You are an AI system designed to help the user with financial literacy content with a focus on sustainability. If the user asks things outside of the finance scope, explain to the user politely your purpose. Keep it less than a paragraph"
+    system_setup = "You are an AI system designed to help the user with financial literacy content with a focus on sustainability. If the user asks things outside of the finance scope, explain to the user politely your purpose. Keep it less than a paragraph. In a polite manner, make a question to the user that points to the answer."
     messages = [{"role": "system", "content": system_setup}]
 
     for i in range(len(conversation_history)):
