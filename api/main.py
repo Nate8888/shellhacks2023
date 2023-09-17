@@ -25,6 +25,17 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 storage_client = storage.Client()
 openai.api_key = os.getenv('OPEN_API_KEY')
 
+def get_ele_voices():
+    url = "https://api.elevenlabs.io/v1/voices"
+
+    headers = {
+        "Accept": "application/json",
+        "xi-api-key": os.getenv('ELEVEN_LABS_KEY_TWO')
+    }
+
+    response = rq.get(url, headers=headers)
+
+    print(response.text)
 
 def random_string(length=8):
     letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
@@ -75,7 +86,7 @@ def save_audio_to_gcs(bucket_name, destination_blob_name, stream):
 
 def generate_audio(msg):
     CHUNK_SIZE = 1024
-    url = "https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB"
+    url = "https://api.elevenlabs.io/v1/text-to-speech/ThT5KcBeYPX3keUQqHPh"
 
     headers = {
       "Accept": "audio/mpeg",
@@ -87,8 +98,8 @@ def generate_audio(msg):
       "text": msg,
       "model_id": "eleven_monolingual_v1",
       "voice_settings": {
-        "stability": 0.5,
-        "similarity_boost": 0.5
+        "stability": 0.66,
+        "similarity_boost": 0.72,
       }
     }
 
@@ -121,7 +132,7 @@ def query_whiper(audio_file):
     return response.json()
 
 def gpt_educates(conversation_history, new_prompt):
-    system_setup = "You are an AI system designed to help the user with financial literacy content with a focus on sustainability. If the user asks things outside of the finance scope, explain to the user politely your purpose."
+    system_setup = "You are an AI system designed to help the user with financial literacy content with a focus on sustainability. If the user asks things outside of the finance scope, explain to the user politely your purpose. Keep it less than a paragraph"
     messages = [{"role": "system", "content": system_setup}]
 
     for i in range(len(conversation_history)):
@@ -141,25 +152,27 @@ def gpt_educates(conversation_history, new_prompt):
     print(response)
     return response.choices[0].message['content']
 
-@app.route('/ok', methods=['POST','GET'])
-@cross_origin()
-def hello_world_api():
-    #esg_analysis = question_esg_news("Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.")
-    # the ESG analysis is a json string like this: {\"score\":8.5, \"esg\":[\"E: Lower impact as there is no explicit reference towards environmental sustainability or mitigations from Apple's investment or development plans.\", \"S: Positive impact on social aspect as the investment will stimulate local economy and possibly create job opportunities.\", \"G: Neutral impact. While it underlines Apple's growth and sectorial expansion, the governance aspect isn't directly discussed or implied in this context.\"]}
-    # esg_analysis = esg_analysis.replace("\\", "")
-    # json_to_dict = json.loads(esg_analysis)
-    # print(json_to_dict)
-    # conversation_history = ["Hello! Who are you?", "I'm an AI assistant created to help you with financial literacy content."]
-    # new_prompt = "What should I be looking at while investing in ESG stocks?"
-    # print(gpt_educates(conversation_history, new_prompt))
-    get_esg_news_from_gcs()
-    return jsonify({"data": "Hello World"})
-
 @app.route('/articles', methods=['GET'])
 @cross_origin()
 def get_news_feed():
+    comp_sector_map = {}
+    companies = get_comp_data()
     final_data = get_esg_news_from_gcs().get("news")
+    for company in companies:
+        comp_sector_map[company['Symbol']] = company['Sector']
+    
+    for article in final_data:
+        if article.get('ticker') and article['ticker'] in comp_sector_map:
+            article['sector'] = comp_sector_map[article['ticker']]
+        else:
+            article['sector'] = 'N/A'
+
     return jsonify(final_data)
+
+@app.route('/voices', methods=['GET'])
+@cross_origin()
+def get_voices():
+    return jsonify(get_ele_voices())
 
 # Route to return the stonks
 @app.route('/stocks', methods=['GET'])
