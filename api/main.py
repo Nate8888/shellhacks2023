@@ -15,7 +15,9 @@ dotenv.load_dotenv()
 import openai
 
 
-processed_dataset_URL = "https://storage.googleapis.com/shellhacksbucket/completed.json"
+processed_dataset_URL = "https://storage.googleapis.com/shellhacksbucket/sorted_w_c-esg.json"
+comp_data_URL = "https://storage.googleapis.com/shellhacksbucket/data.json"
+
 app = Flask(__name__)
 
 cors = CORS(app)
@@ -28,11 +30,15 @@ def random_string(length=8):
     letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
     return ''.join(random.choice(letters) for i in range(length))
 
+def get_comp_data():
+    response = rq.get(comp_data_URL)
+    return response.json()
+
 # We can update the dataset straight to Cloud Storage and then just get it from there
 # The idea is to have a Cron job since it takes time.
 def get_esg_news_from_gcs():
     bucket_name = "shellhacksbucket"
-    prefix = "completed.json"
+    prefix = "sorted_w_c-esg.json"
     delimiter = "/"
 
     blobs = storage_client.list_blobs(
@@ -152,55 +158,43 @@ def hello_world_api():
 @app.route('/articles', methods=['GET'])
 @cross_origin()
 def get_news_feed():
-    unsorted_data = get_esg_news_from_gcs()
-    all_tickers_average = {}
-
-    # For each article, we want to average out all article's scores from each company
-    for article in unsorted_data:
-        if 'score' not in article or not isinstance(article['score'], float):
-            article['score'] = 0.0
-        if 'ticker' in article:
-            if article['ticker'] not in all_tickers_average:
-                all_tickers_average[article['ticker']] = []
-            all_tickers_average[article['ticker']].append(article['score'])
-    
-    for ticker in all_tickers_average:
-        if len(all_tickers_average[ticker]) > 0:
-            all_tickers_average[ticker] = sum(all_tickers_average[ticker]) / len(all_tickers_average[ticker])
-        else:
-            all_tickers_average[ticker] = 0.0
-    
-    for article in unsorted_data:
-        if 'ticker' in article:
-            article['esg_company_score'] = all_tickers_average[article['ticker']]
-        else:
-            article['esg_company_score'] = 0.0
-    
-    sorted_data = sorted(unsorted_data, key=lambda k: k['score'], reverse=True)
-    return jsonify({
-        'news': sorted_data
-    })
+    final_data = get_esg_news_from_gcs().get("news")
+    return jsonify(final_data)
 
 # Route to return the stonks
 @app.route('/stocks', methods=['GET'])
 @cross_origin()
 def get_stocks():
     # Stocks returned will be from the SP500.
-    stock_data = {
-        'stocks':[
-        {
-            'fullname': 'Apple',
-            'ticker': 'AAPL',
-            'price': 127.45,
-            'score': 7.8,
-            'esg_points': [
-                'E. Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
-                'S. The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
-                'G. Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state.'
-            ]
-        },
-    ]}
-    return jsonify(stock_data)
+    # Go through each 
+    all_cps = get_comp_data()
+
+    map_cps = {}
+    all_articles = get_esg_news_from_gcs().get("news")
+    for article in all_articles:
+        if article.get('ticker') and article['ticker'] not in map_cps:
+            map_cps[article['ticker']] = article['esg_company_score']
+    
+    for cp in all_cps:
+        if cp['Symbol'] in map_cps:
+            cp['score'] = map_cps[cp['Symbol']]
+        else:
+            cp['score'] = 0
+    
+    # sort by score descending [{}]
+    all_cps = sorted(all_cps, key=lambda x: x['score'], reverse=True)
+    return jsonify(all_cps)
+
+# get news by company
+@app.route('/company/<company_ticker>', methods=['GET'])
+@cross_origin()
+def get_news_by_company(company_ticker):
+    all_articles = get_esg_news_from_gcs().get("news")
+    company_articles = []
+    for article in all_articles:
+        if article.get('ticker') and type(article) == dict and article['ticker'] == company_ticker:
+            company_articles.append(article)
+    return jsonify(company_articles)
 
 @app.route('/talk', methods=['POST'])
 @cross_origin()
