@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:shellhacks/components/company_card.dart';
+import 'package:shellhacks/models/company_model.dart';
 
 class ArticleCard extends StatefulWidget {
-  const ArticleCard({
-    Key? key,
-    required this.headline,
-    required this.subpoints,
-    required this.headlineScore,
-    this.hideCompanyCard = false,
-  }) : super(key: key);
+  const ArticleCard(
+      {Key? key,
+      required this.headline,
+      required this.subpoints,
+      required this.headlineScore,
+      this.hideCompanyCard = false,
+      this.companyModel})
+      : super(key: key);
 
   final String headline;
   final List<String> subpoints;
   final bool hideCompanyCard;
   final double headlineScore;
+  final CompanyModel? companyModel;
 
   @override
   State<ArticleCard> createState() => _ArticleCardState();
@@ -38,9 +41,14 @@ class _ArticleCardState extends State<ArticleCard> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.headline,
-                  style: Theme.of(context).textTheme.headline4,
+                Expanded(
+                  child: Text(
+                    widget.headline,
+                    style: TextStyle(fontSize: 30),
+                    maxLines: 3, // Allows text to wrap up to 3 lines
+                    overflow: TextOverflow
+                        .ellipsis, // Adds ellipsis (...) at the end if text overflows
+                  ),
                 ),
                 CircleAvatar(
                   child: Text(
@@ -53,11 +61,11 @@ class _ArticleCardState extends State<ArticleCard> {
             ),
           ),
           if (!widget.hideCompanyCard)
-            const CompanyCard(
-              name: 'Google',
-              ticker: 'GOOG',
-              price: 3000.0,
-              score: 3,
+            CompanyCard(
+              name: widget.companyModel?.fullname ?? '',
+              ticker: widget.companyModel?.ticker ?? '',
+              price: widget.companyModel?.price ?? 0.0,
+              score: widget.companyModel?.esgCompanyScore ?? 0.0,
               hideCompanyScore: true,
             ),
           const SizedBox(height: 16.0),

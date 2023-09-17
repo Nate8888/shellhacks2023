@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shellhacks/models/company_model.dart';
 import 'package:shellhacks/pages/profile_page.dart';
 
 class CompanyCard extends StatelessWidget {
@@ -9,21 +10,33 @@ class CompanyCard extends StatelessWidget {
     required this.price,
     required this.score,
     this.hideCompanyScore = false,
+    this.noClickIn = false,
   }) : super(key: key);
 
   final String ticker;
   final String name;
   final double price;
-  final int score;
+  final double score;
   final bool hideCompanyScore;
+  final bool noClickIn;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        if (noClickIn) return;
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ProfilePage()),
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(
+              companyModel: CompanyModel(
+                  esgCompanyScore: score,
+                  fullname: name,
+                  price: price,
+                  sector: '',
+                  ticker: ticker),
+            ),
+          ),
         );
       },
       child: Container(

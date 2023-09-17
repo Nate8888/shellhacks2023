@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shellhacks/pages/home_page.dart';
-import 'package:shellhacks/pages/news_page.dart';
-import 'package:shellhacks/pages/profile_page.dart';
-import 'package:shellhacks/pages/rankings_page.dart';
-import 'package:shellhacks/pages/voice_page.dart';
 import 'package:shellhacks/pages/welcome_page.dart';
 
 void main() async {
@@ -44,11 +39,6 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/',
       routes: {
         '/': (context) => WelcomePage(),
-        '/home': (context) => HomePage(),
-        '/news': (context) => NewsPage(),
-        '/profile': (context) => ProfilePage(),
-        '/rankings': (context) => RankingsPage(),
-        '/voice': (context) => VoicePage(),
       },
       // ),
     );
