@@ -5,14 +5,12 @@ class ArticleCard extends StatefulWidget {
   const ArticleCard({
     Key? key,
     required this.headline,
-    required this.why,
     required this.subpoints,
     required this.headlineScore,
     this.hideCompanyCard = false,
   }) : super(key: key);
 
   final String headline;
-  final String why;
   final List<String> subpoints;
   final bool hideCompanyCard;
   final double headlineScore;
@@ -62,20 +60,6 @@ class _ArticleCardState extends State<ArticleCard> {
               score: 3,
               hideCompanyScore: true,
             ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Why',
-              style: Theme.of(context).textTheme.headline5,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              widget.why,
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-          ),
           const SizedBox(height: 16.0),
           if (_showSubpoints)
             Container(

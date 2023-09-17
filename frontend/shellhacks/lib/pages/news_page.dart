@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shellhacks/components/article_card.dart';
-import 'package:shellhacks/components/category_row.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -24,19 +23,6 @@ class _NewsPageState extends State<NewsPage> {
                 style: Theme.of(context).textTheme.headline4,
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 16.0),
-              child: CategoryRow(
-                categories: [
-                  'Politics',
-                  'Sports',
-                  'Entertainment',
-                  'Tech',
-                  'Business',
-                  'Science'
-                ],
-              ),
-            ),
             Expanded(
               child: ListView.builder(
                 itemCount: 10,
@@ -48,7 +34,6 @@ class _NewsPageState extends State<NewsPage> {
                       child: ArticleCard(
                         headlineScore: 8.0,
                         headline: 'Headline',
-                        why: 'Why',
                         subpoints: ['Subpoint 1', 'Subpoint 2'],
                       ),
                     ),

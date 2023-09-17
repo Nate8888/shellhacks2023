@@ -32,7 +32,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Card(
                       child: ArticleCard(
                         headline: 'Article Headline',
-                        why: 'Article Why',
                         subpoints: ['Subpoint 1', 'Subpoint 2', 'Subpoint 3'],
                         hideCompanyCard: true,
                         headlineScore: 8.0,
