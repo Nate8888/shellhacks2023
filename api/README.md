@@ -94,31 +94,34 @@ Each `esg` is an array that contains brief points related to 'E' (Environmental)
 
 ```json
 [
-  {
-    "esg": [
-      "E:Strong emphasis on environmental sustainability with a clear, timely goal for achieving carbon neutrality.",
-      "S:No specific social impact discussed in this announcement.",
-      "G:No specific corporate governance matters raised in this piece."
-    ],
-    "esg_company_score": 7.5,
-    "fullname": "Alphabet Inc Class C",
-    "heading": "Alphabet Inc Class C commits to achieving carbon neutrality by 2020\n",
-    "score": 9.5,
-    "ticker": "GOOG"
-  },
-  {
-    "esg": [
-      "E: Autodesk's commitment to achieve 100% carbon neutrality indicates a strong emphasis on reducing environmental impact through sustainable practices.",
-      "S: There's no direct reference to social aspects in the article.",
-      "G: No discussion of corporate governance related details."
-    ],
-    "esg_company_score": 5.88,
-    "fullname": "Autodesk Inc.",
-    "heading": "Autodesk Announces Commitment to Achieve 100% Carbon Neutrality by 2020\n",
-    "score": 9.5,
-    "ticker": "ADSK"
-  },
-  ...
+    {
+        "Price": 138.3000030517578,
+        "esg": [
+            "E:Strong emphasis on environmental sustainability with a clear, timely goal for achieving carbon neutrality.",
+            "S:No specific social impact discussed in this announcement.",
+            "G:No specific corporate governance matters raised in this piece."
+        ],
+        "esg_company_score": 7.5,
+        "fullname": "Alphabet Inc Class C",
+        "heading": "Alphabet Inc Class C commits to achieving carbon neutrality by 2020\n",
+        "score": 9.5,
+        "sector": "Information Technology",
+        "ticker": "GOOG"
+    },
+    {
+        "Price": 213.3500061035156,
+        "esg": [
+            "E: Autodesk's commitment to achieve 100% carbon neutrality indicates a strong emphasis on reducing environmental impact through sustainable practices.",
+            "S: There's no direct reference to social aspects in the article.",
+            "G: No discussion of corporate governance related details."
+        ],
+        "esg_company_score": 5.88,
+        "fullname": "Autodesk Inc.",
+        "heading": "Autodesk Announces Commitment to Achieve 100% Carbon Neutrality by 2020\n",
+        "score": 9.5,
+        "sector": "Information Technology",
+        "ticker": "ADSK"
+    },
 ]
 ```
 

@@ -159,11 +159,13 @@ def get_news_feed():
     companies = get_comp_data()
     final_data = get_esg_news_from_gcs().get("news")
     for company in companies:
-        comp_sector_map[company['Symbol']] = company['Sector']
+        comp_sector_map[company['Symbol']] = (company['Sector'], company['Price'])
+        
     
     for article in final_data:
         if article.get('ticker') and article['ticker'] in comp_sector_map:
-            article['sector'] = comp_sector_map[article['ticker']]
+            article['sector'] = comp_sector_map[article['ticker']][0]
+            article['Price'] = comp_sector_map[article['ticker']][1]
         else:
             article['sector'] = 'N/A'
 
