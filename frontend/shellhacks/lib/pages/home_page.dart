@@ -36,11 +36,11 @@ class _HomePageState extends State<HomePage> {
             label: 'news',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'voice',
+            icon: Icon(Icons.person),
+            label: 'chat',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.price_change),
             label: 'rankings',
           ),
         ],
