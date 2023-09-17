@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shellhacks/models/company_model.dart';
 import 'package:shellhacks/pages/profile_page.dart';
 
@@ -22,46 +23,59 @@ class CompanyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        if (noClickIn) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProfilePage(
-              companyModel: CompanyModel(
-                  esgCompanyScore: score,
-                  fullname: name,
-                  price: price,
-                  sector: '',
-                  ticker: ticker),
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (!hideCompanyScore)
-              CircleAvatar(
-                child: Text(
-                  score.toString(),
-                  style: const TextStyle(fontSize: 24.0),
+    return Container(
+      // padding: const EdgeInsets.all(8.0),
+      color: Color.fromARGB(0, 255, 255, 255),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (!hideCompanyScore)
+            CircleAvatar(
+              backgroundColor: Color.fromARGB(255, 255, 229, 208),
+              child: Text(
+                score.toString(),
+                style: GoogleFonts.nunito(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
+                  color: Color.fromARGB(255, 244, 121, 49),
                 ),
-                radius: 32.0,
               ),
-            Container(
-              width: 200,
-              padding: EdgeInsets.only(left: hideCompanyScore ? 16 : 0),
+              radius: 30.0,
+            ),
+          InkWell(
+            onTap: () {
+              if (noClickIn) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(
+                    companyModel: CompanyModel(
+                        esgCompanyScore: score,
+                        fullname: name,
+                        price: price,
+                        sector: '',
+                        ticker: ticker),
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              width: 160,
+              padding: EdgeInsets.only(left: hideCompanyScore ? 16 : 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 6.0),
                   Text(
                     ticker,
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 24,
+                        color: hideCompanyScore
+                            ? Color.fromARGB(255, 244, 121, 49)
+                            : Colors.black),
                   ),
+                  SizedBox(height: 6.0),
                   Text(
                     name,
                     style: Theme.of(context).textTheme.bodyText2,
@@ -69,15 +83,18 @@ class CompanyCard extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Text(
-                '\$$price',
-                style: Theme.of(context).textTheme.headline6,
+          ),
+          Container(
+            padding: const EdgeInsets.only(right: 8.0, top: 4),
+            child: Text(
+              '\$$price',
+              style: GoogleFonts.nunito(
+                fontWeight: FontWeight.w600,
+                fontSize: 25,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -22,7 +22,7 @@ class _NewsPageState extends State<NewsPage> {
 
   void getAllCompanies() async {
     articles = await NewsService().getAllArticles();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -33,10 +33,15 @@ class _NewsPageState extends State<NewsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Text(
-                'News',
-                style: Theme.of(context).textTheme.headline4,
+                'Relevant News',
+                style: TextStyle(
+                  fontSize: 32.0,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Nunito',
+                  color: Color.fromARGB(255, 13, 76, 128),
+                ),
               ),
             ),
             Expanded(
@@ -51,6 +56,13 @@ class _NewsPageState extends State<NewsPage> {
                           // height: 400.0,
                           margin: const EdgeInsets.all(8.0),
                           child: Card(
+                            borderOnForeground: false,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            // surfaceTintColor: Color.fromARGB(255, 255, 159, 63),
+                            shadowColor: Color.fromARGB(255, 228, 122, 22),
+                            elevation: 5.0,
                             child: ArticleCard(
                               headline: articles[index].heading,
                               subpoints: articles[index].esg,

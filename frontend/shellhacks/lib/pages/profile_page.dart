@@ -26,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void getAllCompanies() async {
     articles =
         await ProfileService().getArticlesByCompany(widget.companyModel.ticker);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -36,12 +36,15 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CompanyCard(
-              noClickIn: true,
-              name: widget.companyModel.fullname,
-              ticker: widget.companyModel.ticker,
-              price: widget.companyModel.price,
-              score: widget.companyModel.esgCompanyScore,
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: CompanyCard(
+                noClickIn: true,
+                name: widget.companyModel.fullname,
+                ticker: widget.companyModel.ticker,
+                price: widget.companyModel.price,
+                score: widget.companyModel.esgCompanyScore,
+              ),
             ),
             Expanded(
               child: (articles.length == 0)
@@ -52,6 +55,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       itemCount: articles.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
+                          margin: const EdgeInsets.all(10.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          elevation: 10,
                           child: ArticleCard(
                             headline: articles[index].heading,
                             subpoints: articles[index].esg,

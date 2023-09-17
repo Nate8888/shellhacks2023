@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shellhacks/pages/welcome_page.dart';
 
 void main() async {
@@ -29,11 +30,15 @@ class _MyAppState extends State<MyApp> {
         //     ChangeNotifierProvider(create: (_) => NoteListProvider()),
         //   ],
         //   child:
+
         MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'shellhacks',
       theme: ThemeData(
         primarySwatch: Colors.grey,
+        textTheme: GoogleFonts.nunitoTextTheme(
+          Theme.of(context).textTheme,
+        ),
         // fontFamily: GoogleFonts.nunito().fontFamily,
       ),
       initialRoute: '/',
