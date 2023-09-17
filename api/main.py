@@ -14,6 +14,8 @@ import dotenv
 dotenv.load_dotenv()
 import openai
 
+
+processed_dataset_URL = "https://storage.googleapis.com/shellhacksbucket/completed.json"
 app = Flask(__name__)
 
 cors = CORS(app)
@@ -21,9 +23,30 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 storage_client = storage.Client()
 openai.api_key = os.getenv('OPEN_API_KEY')
 
+
 def random_string(length=8):
     letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
     return ''.join(random.choice(letters) for i in range(length))
+
+# We can update the dataset straight to Cloud Storage and then just get it from there
+# The idea is to have a Cron job since it takes time.
+def get_esg_news_from_gcs():
+    bucket_name = "shellhacksbucket"
+    prefix = "completed.json"
+    delimiter = "/"
+
+    blobs = storage_client.list_blobs(
+        bucket_name, prefix=prefix, delimiter=delimiter
+    )
+
+    for blob in blobs:
+        print(blob.name)
+        if blob.name == prefix:
+            blob = blob.download_as_string()
+            blob = blob.decode('utf-8')
+            blob = json.loads(blob)
+            print(blob)
+            return blob
 
 def question_esg_news(news_summary):
     system_prompt = 'You are a system that is evaluating the ESG impact of articles that I pass you. You are to give a score from 0-10 and then explain briefly what the "E", "S", and "G" aspect focus on. Reply in JSON format like as following:"{score:8.5, "esg":["E:", "S:","G:"]}"'
@@ -51,7 +74,7 @@ def generate_audio(msg):
     headers = {
       "Accept": "audio/mpeg",
       "Content-Type": "application/json",
-      "xi-api-key": os.getenv('ELEVEN_LABS_KEY')
+      "xi-api-key": os.getenv('ELEVEN_LABS_KEY_TWO')
     }
 
     data = {
@@ -115,34 +138,48 @@ def gpt_educates(conversation_history, new_prompt):
 @app.route('/ok', methods=['POST','GET'])
 @cross_origin()
 def hello_world_api():
-    esg_analysis = question_esg_news("Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.")
+    #esg_analysis = question_esg_news("Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.")
     # the ESG analysis is a json string like this: {\"score\":8.5, \"esg\":[\"E: Lower impact as there is no explicit reference towards environmental sustainability or mitigations from Apple's investment or development plans.\", \"S: Positive impact on social aspect as the investment will stimulate local economy and possibly create job opportunities.\", \"G: Neutral impact. While it underlines Apple's growth and sectorial expansion, the governance aspect isn't directly discussed or implied in this context.\"]}
-    esg_analysis = esg_analysis.replace("\\", "")
-    json_to_dict = json.loads(esg_analysis)
-    print(json_to_dict)
+    # esg_analysis = esg_analysis.replace("\\", "")
+    # json_to_dict = json.loads(esg_analysis)
+    # print(json_to_dict)
     # conversation_history = ["Hello! Who are you?", "I'm an AI assistant created to help you with financial literacy content."]
     # new_prompt = "What should I be looking at while investing in ESG stocks?"
     # print(gpt_educates(conversation_history, new_prompt))
+    get_esg_news_from_gcs()
     return jsonify({"data": "Hello World"})
 
 @app.route('/articles', methods=['GET'])
 @cross_origin()
 def get_news_feed():
-    data = {
-        'news':[ # Article
-        {
-            'headline': 'Apple to invest $1 billion in North Carolina campus, create at least 3,000 jobs',
-            'summary':"Wow",
-            'score': 7.8,
-            'esg_points': [
-                'Apple is investing $1 billion in North Carolina as part of a plan to establish a new campus and engineering hub in the Research Triangle area.',
-                'The company said it will create at least 3,000 new jobs in machine learning, artificial intelligence, software engineering and other fields.',
-                'Apple will also establish a $100 million fund to support schools and community initiatives in the greater Raleigh-Durham area and across the state.'
-            ]
-        },
-    ]
-    }
-    return jsonify(data)
+    unsorted_data = get_esg_news_from_gcs()
+    all_tickers_average = {}
+
+    # For each article, we want to average out all article's scores from each company
+    for article in unsorted_data:
+        if 'score' not in article or not isinstance(article['score'], float):
+            article['score'] = 0.0
+        if 'ticker' in article:
+            if article['ticker'] not in all_tickers_average:
+                all_tickers_average[article['ticker']] = []
+            all_tickers_average[article['ticker']].append(article['score'])
+    
+    for ticker in all_tickers_average:
+        if len(all_tickers_average[ticker]) > 0:
+            all_tickers_average[ticker] = sum(all_tickers_average[ticker]) / len(all_tickers_average[ticker])
+        else:
+            all_tickers_average[ticker] = 0.0
+    
+    for article in unsorted_data:
+        if 'ticker' in article:
+            article['esg_company_score'] = all_tickers_average[article['ticker']]
+        else:
+            article['esg_company_score'] = 0.0
+    
+    sorted_data = sorted(unsorted_data, key=lambda k: k['score'], reverse=True)
+    return jsonify({
+        'news': sorted_data
+    })
 
 # Route to return the stonks
 @app.route('/stocks', methods=['GET'])
